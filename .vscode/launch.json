@@ -12,7 +12,20 @@
 			"enableTableSync": true
 		}
 	],
-	"lastPrograms": [],
-	"lastProgramExecuted": "<cancel>",
-	"lastProgramArgumens": []
+	"lastPrograms": [
+		{
+			"label": "sigamdi"
+		},
+		{
+			"label": "Environment"
+		},
+		{
+			"label": "sigaadv"
+		},
+		{
+			"args": [],
+			"label": "Protheuzeiro"
+		}
+	],
+	"lastProgramExecuted": "sigamdi"
 }
