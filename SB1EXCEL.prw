@@ -26,6 +26,7 @@ User Function SB1EXCEL()
 
     TCQUERY cQuery new Alias "SB1" // Existe outra forma mais segura e dinamica de realizar a execução da query
 
+    // Verificar se a area do arquivo virtual está aberta
     If Select("SB1") > 0
         SB1->(DBCLOSEAREA())
     EndIF
@@ -34,11 +35,12 @@ User Function SB1EXCEL()
         
         aAdd(aDados, {SB1->B1_FILIAL, SB1->CODIGO, SB1->B1_DESC, SB1->B1_TIPO})
 
-    SB1->(dbSkip())
+    SB1->(dbSkip()) // Passo para o proximo registro do resultado da minha consulta
     Enddo
 
-SB1->(DBCLOSEAREA())
+SB1->(DBCLOSEAREA()) // Fecho a área do arquivo virtual aberto
 
+// Finalmente, transformo os meus arrays em cabeçalho e conteudo de dados
 DlgToExcel({{"ARRAY","Relatorio Produtos", aCabec, aDados}})
 
-Return 
+Return // Fim da minha user function
