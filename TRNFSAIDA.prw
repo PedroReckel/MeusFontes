@@ -2,13 +2,13 @@
 #INCLUDE "Topconn.ch"
 
 /*/{Protheus.doc} TRPEDC
-Relatório no modelo TReport que é responsável por imprimir os dados do cadatro de clientes, mais precisamente os campos CODIGO, LOJA e NOME
+Relatório no modelo TReport que é responsável por trazer as NF de saida com o campo descrição do produto
 @type function
 @author Pedro Reckel Roberte
 @since 04/10/2022
 @version 1.0
 /*/
-User Function TRPEDC()
+User Function TRNFSAIDA()
 
 //VARIAVEIS 
 Private oReport  := Nil
@@ -27,18 +27,9 @@ oReport:PrintDialog()
 
 Return 
 
+Static Function ReportDef()
 
-
-/*/{Protheus.doc} ReportDef
-Função responsável por estruturar as seções e campos que darão forma ao relatório, bem como outras características.
-Aqui os campos contidos na querie, que você quer que apareça no relatório, são adicionados
-@type function
-@author Pedro Reckel Roberte
-@since 04/10/2022
-@version 1.0
-/*/Static Function ReportDef()
-
-oReport := TReport():New("TRPEDC","Relatório - Pedidos de compra / Fornecedor",cPerg,{|oReport| PrintReport(oReport)},"Relatório Pedidos de Compra/Fornecedor")
+oReport := TReport():New("TRNFSAIDA","Relatório - NF de saida com o campo descrição do produto",cPerg,{|oReport| PrintReport(oReport)},"Relatório NF de saida com o campo descrição do produto")
 oReport:SetLandscape(.T.) // SIGNIFICA QUE O RELATÓRIO SERÁ EM PAISAGEM
 
 //TrSection serve para constrole da seção do relatório, neste caso, teremos somente uma
@@ -50,22 +41,26 @@ Um detalhe importante, todos os campos contidos nas linhas abaixo, devem estar n
 você pode colocar campos na querie e adcionar aqui embaixo, conforme a sua necessidade.
 */
 
-//A2_COD, A2_NOME, C7_NUM, C7_EMISSAO,C7_PRODUTO, C7_QUANT
+// D1_FILIAL, D1_ITEM, D1_COD, B1_DESC, D1_UM, D1_QUANT, D1_VUNIT, D1_FORNECE, D1_LOJA, D1_EMISSAO
 
-TRCell():New( oSecCab, "C7_NUM"    , "SC7")
-TRCell():New( oSecCab, "C7_FORNECE"     , "SC7")
-TRCell():New( oSecCab, "A2_NOME"    , "SA2")
-TRCell():New( oSecCab, "C7_EMISSAO"    , "SC7")
-TRCell():New( oSecCab, "C7_PRODUTO"    , "SC7")
-TRCell():New( oSecCab, "C7_QUANT"    , "SC7")
+TRCell():New( oSecCab, "D1_FILIAL"    , "SD1")
+TRCell():New( oSecCab, "D1_ITEM"     , "SD1")
+TRCell():New( oSecCab, "D1_COD"    , "SD1")
+TRCell():New( oSecCab, "B1_DESC"    , "SB1")
+TRCell():New( oSecCab, "D1_UM"    , "SD1")
+TRCell():New( oSecCab, "D1_QUANT"    , "SD1")
+TRCell():New( oSecCab, "D1_VUNIT"    , "SD1")
+TRCell():New( oSecCab, "D1_FORNECE"    , "SD1")
+TRCell():New( oSecCab, "D1_LOJA"    , "SD1")
+TRCell():New( oSecCab, "D1_EMISSAO"    , "SD1")
 
-oBreak := TRBreak():New(oSecCab,oSecCab:Cell("C7_FORNECE"),"Sub Total Pedidos")
+oBreak := TRBreak():New(oSecCab,oSecCab:Cell("D1_ITEM"),"Sub Total Pedidos")
 
 //ESTA LINHA IRÁ CONTAR A QUANTIDADE DE REGISTROS LISTADOS NO RELATÓRIO PARA A ÚNICA SEÇÃO QUE TEMOS
-TRFunction():New(oSecCab:Cell("C7_NUM"),NIL,"COUNT",oBreak)
+TRFunction():New(oSecCab:Cell("D1_COD"),NIL,"COUNT",oBreak)
 //TRFunction():New(oSecCab:Cell("E2_SALDO"),NIL,"SUM",oBreak)
 
-TRFunction():New(oSecCab:Cell("C7_FORNECE"),,"COUNT")
+//TRFunction():New(oSecCab:Cell("C7_FORNECE"),,"COUNT")
 
 Return 
 
@@ -86,10 +81,28 @@ oSecCab:BeginQuery() //Relatório começa a ser estruturado
 //INICIO DA QUERY
 BeginSql Alias cAlias
 
+SELECT  
+	D1_FILIAL AS Filial,
+	D1_ITEM AS Item,
+	D1_COD AS Cod_produto,
+	B1_DESC AS Descrição,
+	D1_UM AS Unidade,
+	D1_QUANT AS Quantidade,
+	D1_VUNIT AS Vlr_unidade,
+	D1_TOTAL AS Total,
+	D1_FORNECE AS Cod_fornecedor,
+	D1_LOJA AS Loja,
+	CONVERT(VARCHAR,CONVERT(DATE, SD1.D1_EMISSAO),103) AS Data_emissao
+FROM %table:SD1%  SD1
+	INNER JOIN %table:SB1% SB1 ON SB1.B1_COD = SD1.D1_COD
+WHERE SD1.%notdel% AND SB1.%notdel%
+
+/*/
 	SELECT C7_FORNECE, A2_NOME, C7_NUM, C7_EMISSAO,C7_PRODUTO, C7_QUANT FROM %table:SC7% SC7
 	INNER JOIN %table:SA2% SA2 ON SC7.C7_FORNECE = SA2.A2_COD AND SC7.C7_LOJA = SA2.A2_LOJA 
 	WHERE C7_FORNECE BETWEEN %exp:(MV_PAR01)% AND %exp:(MV_PAR02)%  
 	AND SC7.%notdel% and SA2.%notdel%
+/*/
 
 //FIM DA QUERY
 EndSql
@@ -110,7 +123,7 @@ FUNÇÃO RESPONSÁVEL POR CRIAR AS PERGUNTAS NA SX1
 @author Pedro Reckel Roberte
 @since 04/10/2022
 @version 1.0
-/*/Static Function ValidPerg()
+Static Function ValidPerg()
 	Local aArea  := SX1->(GetArea())
 	Local aRegs := {}
 	Local i,j
@@ -133,3 +146,4 @@ FUNÇÃO RESPONSÁVEL POR CRIAR AS PERGUNTAS NA SX1
 	Next i 
 	RestArea(aArea) 
 Return(cPerg)
+/*/
