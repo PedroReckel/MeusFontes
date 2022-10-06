@@ -2,13 +2,13 @@
 #INCLUDE "Topconn.ch"
 
 /*/{Protheus.doc} TRPEDC
-Relatório no modelo TReport que é responsável por trazer as NF de saida com o campo descrição do produto
+Relatório no modelo TReport que é responsável por trazer as NF de entrada com o campo descrição do produto
 @type function
 @author Pedro Reckel Roberte
 @since 04/10/2022
 @version 1.0
 /*/
-User Function TRNFSAIDA()
+User Function TRNFENTRADA()
 
 //VARIAVEIS 
 Private oReport  := Nil
@@ -29,11 +29,11 @@ Return
 
 Static Function ReportDef()
 
-oReport := TReport():New("TRNFSAIDA","Relatório - NF de saida com o campo descrição do produto",cPerg,{|oReport| PrintReport(oReport)},"Relatório NF de saida com o campo descrição do produto")
+oReport := TReport():New("TRNFENTRADA","Relatório - NF de entrada com o campo descrição do produto",cPerg,{|oReport| PrintReport(oReport)},"Relatório NF de entrada com o campo descrição do produto")
 oReport:SetLandscape(.T.) // SIGNIFICA QUE O RELATÓRIO SERÁ EM PAISAGEM
 
 //TrSection serve para constrole da seção do relatório, neste caso, teremos somente uma
-oSecCab := TRSection():New( oReport , "TITULOS POR FORNECEDOR"  )
+oSecCab := TRSection():New( oReport , "Relatório NF de entrada com o campo descrição do produto"  )
 
 /*
 TrCell serve para inserir os campos/colunas que você quer no relatório, lembrando que devem ser os mesmos campos que contém na QUERIE
@@ -95,7 +95,7 @@ SELECT
 	CONVERT(VARCHAR,CONVERT(DATE, SD1.D1_EMISSAO),103) AS Data_emissao
 FROM %table:SD1%  SD1
 	INNER JOIN %table:SB1% SB1 ON SB1.B1_COD = SD1.D1_COD
-WHERE SD1.%notdel% AND SB1.%notdel%
+WHERE D1_ITEM BETWEEN %exp:(MV_PAR01)% AND %exp:(MV_PAR02)% AND SD1.%notdel% AND SB1.%notdel%
 
 /*/
 	SELECT C7_FORNECE, A2_NOME, C7_NUM, C7_EMISSAO,C7_PRODUTO, C7_QUANT FROM %table:SC7% SC7
@@ -122,14 +122,14 @@ FUNÇÃO RESPONSÁVEL POR CRIAR AS PERGUNTAS NA SX1
 @type function
 @author Pedro Reckel Roberte
 @since 04/10/2022
-@version 1.0
+@version 1.0/*/
 Static Function ValidPerg()
 	Local aArea  := SX1->(GetArea())
 	Local aRegs := {}
 	Local i,j
 
-	aadd( aRegs, { cPerg,"01","Fornecedor de ?","Fornecedor de ?","Fornecedor de ?","mv_ch1","C", 6,0,0,"G","","mv_par01","","","mv_par01"," ","",""," ","","","","","","","","","","","","","","","","","","SA2"          } )
-	aadd( aRegs, { cPerg,"02","Fornecedor ate ?","Fornecedor ate ?","Fornecedor ate ?","mv_ch2","C", 6,0,0,"G","","mv_par02","","","mv_par02"," ","",""," ","","","","","","","","","","","","","","","","","","SA2"       } )
+	aadd( aRegs, { cPerg,"01","Item de ?","Item de ?","Item de ?","mv_ch1","C", 6,0,0,"G","","mv_par01","","","mv_par01"," ","",""," ","","","","","","","","","","","","","","","","","","SD1"          } )
+	aadd( aRegs, { cPerg,"02","Item ate ?","Item ate ?","Item ate ?","mv_ch2","C", 6,0,0,"G","","mv_par02","","","mv_par02"," ","",""," ","","","","","","","","","","","","","","","","","","SD1"       } )
 
 	DbselectArea('SX1')
 	SX1->(DBSETORDER(1))
@@ -146,4 +146,3 @@ Static Function ValidPerg()
 	Next i 
 	RestArea(aArea) 
 Return(cPerg)
-/*/
