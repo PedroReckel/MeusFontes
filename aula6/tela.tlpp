@@ -1,0 +1,72 @@
+/*
+
+- A ultilização de nomes mais longos
+    Exemplos:
+        ADVPL: Aceita 10 caracteres
+            U_EXERCIOAULA6  -> O compilador vai entender a mesma coisa
+            U_EXERCIOAULA7  -> O compilador vai entender a mesma coisa
+
+        TLPP: Aceita 255 caracteres
+
+- Tipagem forte de variáveis
+    TLPP: Utilizar a tipagem forte de variáveis
+        Pode evitar erros de execução (typemismatch)
+
+- Não possui suporte para desenvolvimento utilizando a arquitetura MVC
+    - Porque respeita o escopo das funções e o MVC possui funções staticas
+
+*/
+
+#INCLUDE 'TOTVS.CH'
+
+/*/{Protheus.doc} User Function nomeFunction
+    (long_description)
+    @type  Function
+    @author Pedro Reckel Roberte
+    @since 16/10/2022
+    @version version
+    @param param_name, param_type, param_descr
+    @return return_var, return_type, return_description
+    @example
+    (examples)
+    @see (links_or_references)
+/*/
+
+User Function CadSA1()
+
+    Private cCadastro as Character
+    Private aRotina as Array
+
+    cCadastro := 'Cadastro de clientes'
+    aRotina   := {}
+
+    // Adcionar as opções no meu browser
+    AADD(aRotina, {'Pesquisar'  , 'AxPesqui',  0, 1})
+    AADD(aRotina, {'Visualizar' , 'AxVisual',  0, 2})
+    AADD(aRotina, {'Incluir'    , 'AxIncluir', 0, 3})
+    AADD(aRotina, {'Alterar'    , 'AxAltera',  0, 4})
+    AADD(aRotina, {'Excluir'    , 'AxDeleta',  0, 5})
+    AADD(aRotina, {'Imp. Nome'  , 'U_MinhaPrimeiraTela', 0, 6})
+
+    mBrowse(,,,, 'SA1')
+
+Return
+
+User Function MinhaPrimeiraTela()
+    Local oDlg as Object
+    Local oGet as Object
+    Local cNome as Character
+    Local oBotao as Object
+
+    cNome := Space(30)
+
+    Define MSDIALOG oDlg TITLE 'Minha primeira tela'
+    oDlg:nWidth  := 400
+    oDlg:nHeight := 300
+
+    @06, @10 SAY 'Digite seu nome:' of oDlg PIXEL 
+    @06, @60 get oGet var cNome of oDlg SIZE 70,10 PIXEL
+    @30, @10 BUTTON oBotao PROMPT 'ok' of oDlg PIXEL SIZE 30,10 ACTION Alert('O nome digitado foi: ' + cNome) 
+
+    ACTIVATE MSDIALOG oDlg CENTERED
+Return 
